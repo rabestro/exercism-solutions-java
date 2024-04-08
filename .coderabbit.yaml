@@ -19,6 +19,7 @@ reviews:
     - '!**/*.bat'
     - '!**/gradlew'
     - '!**/*.gradle'
+    - '!**/*.properties'
     - '!**/*Test.java'
 chat:
   auto_reply: true
