@@ -1,5 +1,7 @@
+import java.util.stream.IntStream;
+
 class BowlingGameLog {
-    static final int MAX_FRAMES = 10;
+    private static final int MAX_FRAMES = 10;
     private static final int MAX_PINS = 10;
     private static final int MAX_THROWS_PER_FRAME = 2;
     private final int[] firstThrowNumber = new int[MAX_FRAMES + 2];
@@ -15,8 +17,9 @@ class BowlingGameLog {
     void prepareThrow() {
         throwNumber++;
         if (isNewFrame()) {
+            ++frame;
             pinsRemaining = MAX_PINS;
-            firstThrowNumber[++frame] = throwNumber;
+            firstThrowNumber[frame] = throwNumber;
         }
     }
 
@@ -35,6 +38,10 @@ class BowlingGameLog {
             score += knockedDownPins[++i];
         }
         return score;
+    }
+
+    public int totalScore() {
+        return IntStream.range(0, MAX_FRAMES).map(this::score).sum();
     }
 
     private boolean isNewFrame() {
