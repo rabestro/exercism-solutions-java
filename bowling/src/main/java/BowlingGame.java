@@ -12,14 +12,7 @@ class BowlingGame {
 
     int score() {
         ensureGameOver();
-        return totalScore();
-    }
-
-    private int totalScore() {
-        return IntStream
-                .range(0, BowlingGameLog.MAX_FRAMES)
-                .map(gameLog::score)
-                .sum();
+        return gameLog.totalScore();
     }
 
     private void ensureGameOver() {
