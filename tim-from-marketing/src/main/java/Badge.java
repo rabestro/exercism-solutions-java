@@ -6,7 +6,7 @@ class Badge {
         }
         sb.append(name).append(" - ");
         if (department != null) {
-            sb.append(department.toUpperCase());
+            sb.append(department.toUpperCase(Locale.ROOT));
         } else {
             sb.append("OWNER");
         }
