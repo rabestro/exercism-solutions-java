@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 class AppointmentScheduler {
     private static final DateTimeFormatter APPOINTMENT_SCHEDULE_FORMATTER = DateTimeFormatter.ofPattern(
             "MM/dd/yyyy HH:mm:ss");
-    private static final DateTimeFormatter APPOINTMENT_DESCRIPTION_FORMATER = DateTimeFormatter.ofPattern(
+    private static final DateTimeFormatter APPOINTMENT_DESCRIPTION_FORMATTER = DateTimeFormatter.ofPattern(
             "'You have an appointment on' EEEE, MMMM d, yyyy, 'at' h:mm a.");
 
     public LocalDateTime schedule(String appointmentDateDescription) {
@@ -21,7 +21,7 @@ class AppointmentScheduler {
     }
 
     public String getDescription(LocalDateTime appointmentDate) {
-        return appointmentDate.format(APPOINTMENT_DESCRIPTION_FORMATER);
+        return appointmentDate.format(APPOINTMENT_DESCRIPTION_FORMATTER);
     }
 
     public LocalDate getAnniversaryDate() {
