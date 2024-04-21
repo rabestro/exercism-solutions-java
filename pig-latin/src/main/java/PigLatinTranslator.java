@@ -1,18 +1,18 @@
 import java.util.regex.Pattern;
 
 public final class PigLatinTranslator {
-    private static final String CONSONANTS = "" +
-            "(?<consonants>" + // define named capture group
-            "(?!xr|yt)" + // consonants should not start with "xr" or "yt"
-            "y?(qu|[\\w&&[^aeiouy]])*" + // the main definition of consonant group
-            ")?"; // The consonants group is optional. It is empty if word starts with vowel
 
-    private static final String BASE = "(?<base>\\w+)";
-
-    private static final Pattern PATTERN = Pattern.compile(CONSONANTS + BASE);
-    private static final String TEMPLATE = "${base}${consonants}ay";
+    private static final Pattern WORD_PATTERN = Pattern.compile("""
+            (?<consonants>                  # Define possible consonants
+                (?!xr|yt)                   # Consonants should not start with "xr" or "yt"
+                y?(qu|[\\w&&[^aeiouy]])*    # The main definition of a consonant group.
+            )?                              # The consonants group is optional.
+                                            # It is empty if a word starts with a vowel
+            (?<base>\\w+)                   # The definition of a base, unmoved groups of letters
+            """, Pattern.COMMENTS);
+    private static final String PIG_LATIN_FORMAT = "${base}${consonants}ay";
 
     public String translate(String sentence) {
-        return PATTERN.matcher(sentence).replaceAll(TEMPLATE);
+        return WORD_PATTERN.matcher(sentence).replaceAll(PIG_LATIN_FORMAT);
     }
 }
