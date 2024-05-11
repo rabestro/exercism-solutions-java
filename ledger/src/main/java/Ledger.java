@@ -3,47 +3,52 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 public class Ledger {
+    private static final Set<String> CURRENCIES = Set.of("USD", "EUR");
+
     public LedgerEntry createLedgerEntry(String date, String description, int change) {
         return new LedgerEntry(LocalDate.parse(date), description, change);
     }
 
-    public String format(String cur, String loc, LedgerEntry[] entries) {
+    public String format(String currency, String locale, LedgerEntry[] entries) {
         String s;
         String header = null;
-        String curSymb = null;
+        String currencySymbol = null;
         String datPat = null;
         String decSep = null;
         String thSep = null;
-        if (!cur.equals("USD") && !cur.equals("EUR")) {
+
+        if (!CURRENCIES.contains(currency)) {
             throw new IllegalArgumentException("Invalid currency");
-        } else if (!loc.equals("en-US") && !loc.equals("nl-NL")) {
+        }
+        if (!locale.equals("en-US") && !locale.equals("nl-NL")) {
             throw new IllegalArgumentException("Invalid locale");
         } else {
-            if (cur.equals("USD")) {
-                if (loc.equals("en-US")) {
-                    curSymb = "$";
+            if (currency.equals("USD")) {
+                if (locale.equals("en-US")) {
+                    currencySymbol = "$";
                     datPat = "MM/dd/yyyy";
                     decSep = ".";
                     thSep = ",";
                     header = "Date       | Description               | Change       ";
-                } else if (loc.equals("nl-NL")) {
-                    curSymb = "$";
+                } else if (locale.equals("nl-NL")) {
+                    currencySymbol = "$";
                     datPat = "dd/MM/yyyy";
                     decSep = ",";
                     thSep = ".";
                     header = "Datum      | Omschrijving              | Verandering  ";
                 }
-            } else if (cur.equals("EUR")) {
-                if (loc.equals("en-US")) {
-                    curSymb = "€";
+            } else if (currency.equals("EUR")) {
+                if (locale.equals("en-US")) {
+                    currencySymbol = "€";
                     datPat = "MM/dd/yyyy";
                     decSep = ".";
                     thSep = ",";
                     header = "Date       | Description               | Change       ";
-                } else if (loc.equals("nl-NL")) {
-                    curSymb = "€";
+                } else if (locale.equals("nl-NL")) {
+                    currencySymbol = "€";
                     datPat = "dd/MM/yyyy";
                     decSep = ",";
                     thSep = ".";
@@ -72,9 +77,7 @@ public class Ledger {
             all.addAll(neg);
             all.addAll(pos);
 
-            for (int i = 0; i < all.size(); i++) {
-                LedgerEntry e = all.get(i);
-
+            for (LedgerEntry e : all) {
                 String date = e.date().format(DateTimeFormatter.ofPattern(datPat));
 
                 String desc = e.description();
@@ -83,7 +86,7 @@ public class Ledger {
                     desc = desc + "...";
                 }
 
-                String converted = null;
+                String converted;
                 if (e.change() < 0) {
                     converted = String.format("%.02f", (e.change() / 100) * -1);
                 } else {
@@ -102,23 +105,23 @@ public class Ledger {
                     count++;
                 }
 
-                if (loc.equals("nl-NL")) {
-                    amount = curSymb + " " + amount + decSep + parts[1];
+                if (locale.equals("nl-NL")) {
+                    amount = currencySymbol + " " + amount + decSep + parts[1];
                 } else {
-                    amount = curSymb + amount + decSep + parts[1];
+                    amount = currencySymbol + amount + decSep + parts[1];
                 }
-                
 
-                if (e.change() < 0 && loc.equals("en-US")) {
+
+                if (e.change() < 0 && locale.equals("en-US")) {
                     amount = "(" + amount + ")";
-                } else if (e.change() < 0 && loc.equals("nl-NL")) {
-                    amount = curSymb + " -" + amount.replace(curSymb, "").trim() + " ";
-                } else if (loc.equals("nl-NL")) {
+                } else if (e.change() < 0 && locale.equals("nl-NL")) {
+                    amount = currencySymbol + " -" + amount.replace(currencySymbol, "").trim() + " ";
+                } else if (locale.equals("nl-NL")) {
                     amount = " " + amount + " ";
                 } else {
                     amount = amount + " ";
                 }
-                
+
                 s = s + "\n";
                 s = s + String.format("%s | %-25s | %13s",
                         date,
@@ -133,5 +136,4 @@ public class Ledger {
 
     public record LedgerEntry(LocalDate date, String description, double change) {
     }
-
 }
