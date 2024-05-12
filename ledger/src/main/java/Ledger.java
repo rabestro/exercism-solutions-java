@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 public class Ledger {
@@ -32,17 +33,21 @@ public class Ledger {
             throw new IllegalArgumentException("Invalid locale");
         }
         var locale = Locale.forLanguageTag(localeName);
+        var resource = ResourceBundle.getBundle("messages", locale);
+        datPat = resource.getString("date.pattern");
+
+        header = "%-10s | %-25s | %-13s".formatted(
+                resource.getString("header.date"),
+                resource.getString("header.description"),
+                resource.getString("header.change")
+        );
 
         if (localeName.equals("en-US")) {
-            datPat = "MM/dd/yyyy";
             decSep = ".";
             thSep = ",";
-            header = "Date       | Description               | Change       ";
         } else if (localeName.equals("nl-NL")) {
-            datPat = "dd/MM/yyyy";
             decSep = ",";
             thSep = ".";
-            header = "Datum      | Omschrijving              | Verandering  ";
         }
 
         s = header;
@@ -67,6 +72,7 @@ public class Ledger {
 
             for (LedgerEntry e : all) {
                 String date = e.date().format(DateTimeFormatter.ofPattern(datPat));
+                //var date = e.date().format(formatter);
 
                 String desc = e.description();
                 if (desc.length() > 25) {
