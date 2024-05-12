@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class Ledger {
     private static final Set<String> CURRENCIES = Set.of("USD", "EUR");
+    private static final Set<String> LOCALES = Set.of("en-US", "nl-NL");
 
     public LedgerEntry createLedgerEntry(String date, String description, int change) {
         return new LedgerEntry(LocalDate.parse(date), description, change);
     }
 
-    public String format(String currencyName, String locale, LedgerEntry[] entries) {
+    public String format(String currencyName, String localeName, LedgerEntry[] entries) {
         String s;
         String header = null;
-        String currencySymbol = null;
         String datPat = null;
         String decSep = null;
         String thSep = null;
@@ -25,36 +26,23 @@ public class Ledger {
             throw new IllegalArgumentException("Invalid currency");
         }
         var currency = Currency.getInstance(currencyName);
-        currencySymbol = currency.getSymbol();
+        var currencySymbol = currency.getSymbol();
 
-        if (!locale.equals("en-US") && !locale.equals("nl-NL")) {
+        if (!LOCALES.contains(localeName)) {
             throw new IllegalArgumentException("Invalid locale");
-        } else {
-            if (currencyName.equals("USD")) {
-                if (locale.equals("en-US")) {
-                    datPat = "MM/dd/yyyy";
-                    decSep = ".";
-                    thSep = ",";
-                    header = "Date       | Description               | Change       ";
-                } else if (locale.equals("nl-NL")) {
-                    datPat = "dd/MM/yyyy";
-                    decSep = ",";
-                    thSep = ".";
-                    header = "Datum      | Omschrijving              | Verandering  ";
-                }
-            } else if (currencyName.equals("EUR")) {
-                if (locale.equals("en-US")) {
-                    datPat = "MM/dd/yyyy";
-                    decSep = ".";
-                    thSep = ",";
-                    header = "Date       | Description               | Change       ";
-                } else if (locale.equals("nl-NL")) {
-                    datPat = "dd/MM/yyyy";
-                    decSep = ",";
-                    thSep = ".";
-                    header = "Datum      | Omschrijving              | Verandering  ";
-                }
-            }
+        }
+        var locale = Locale.forLanguageTag(localeName);
+
+        if (localeName.equals("en-US")) {
+            datPat = "MM/dd/yyyy";
+            decSep = ".";
+            thSep = ",";
+            header = "Date       | Description               | Change       ";
+        } else if (localeName.equals("nl-NL")) {
+            datPat = "dd/MM/yyyy";
+            decSep = ",";
+            thSep = ".";
+            header = "Datum      | Omschrijving              | Verandering  ";
         }
 
         s = header;
@@ -105,18 +93,18 @@ public class Ledger {
                     count++;
                 }
 
-                if (locale.equals("nl-NL")) {
+                if (localeName.equals("nl-NL")) {
                     amount = currencySymbol + " " + amount + decSep + parts[1];
                 } else {
                     amount = currencySymbol + amount + decSep + parts[1];
                 }
 
 
-                if (e.change() < 0 && locale.equals("en-US")) {
+                if (e.change() < 0 && localeName.equals("en-US")) {
                     amount = "(" + amount + ")";
-                } else if (e.change() < 0 && locale.equals("nl-NL")) {
+                } else if (e.change() < 0 && localeName.equals("nl-NL")) {
                     amount = currencySymbol + " -" + amount.replace(currencySymbol, "").trim() + " ";
-                } else if (locale.equals("nl-NL")) {
+                } else if (localeName.equals("nl-NL")) {
                     amount = " " + amount + " ";
                 } else {
                     amount = amount + " ";
