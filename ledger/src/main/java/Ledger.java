@@ -2,6 +2,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ public class Ledger {
         return new LedgerEntry(LocalDate.parse(date), description, change);
     }
 
-    public String format(String currency, String locale, LedgerEntry[] entries) {
+    public String format(String currencyName, String locale, LedgerEntry[] entries) {
         String s;
         String header = null;
         String currencySymbol = null;
@@ -20,35 +21,34 @@ public class Ledger {
         String decSep = null;
         String thSep = null;
 
-        if (!CURRENCIES.contains(currency)) {
+        if (!CURRENCIES.contains(currencyName)) {
             throw new IllegalArgumentException("Invalid currency");
         }
+        var currency = Currency.getInstance(currencyName);
+        currencySymbol = currency.getSymbol();
+
         if (!locale.equals("en-US") && !locale.equals("nl-NL")) {
             throw new IllegalArgumentException("Invalid locale");
         } else {
-            if (currency.equals("USD")) {
+            if (currencyName.equals("USD")) {
                 if (locale.equals("en-US")) {
-                    currencySymbol = "$";
                     datPat = "MM/dd/yyyy";
                     decSep = ".";
                     thSep = ",";
                     header = "Date       | Description               | Change       ";
                 } else if (locale.equals("nl-NL")) {
-                    currencySymbol = "$";
                     datPat = "dd/MM/yyyy";
                     decSep = ",";
                     thSep = ".";
                     header = "Datum      | Omschrijving              | Verandering  ";
                 }
-            } else if (currency.equals("EUR")) {
+            } else if (currencyName.equals("EUR")) {
                 if (locale.equals("en-US")) {
-                    currencySymbol = "€";
                     datPat = "MM/dd/yyyy";
                     decSep = ".";
                     thSep = ",";
                     header = "Date       | Description               | Change       ";
                 } else if (locale.equals("nl-NL")) {
-                    currencySymbol = "€";
                     datPat = "dd/MM/yyyy";
                     decSep = ",";
                     thSep = ".";
