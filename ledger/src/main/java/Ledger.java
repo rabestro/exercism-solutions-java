@@ -18,7 +18,6 @@ public class Ledger {
 
     public String format(String currencyName, String localeName, LedgerEntry[] entries) {
         String s;
-        String header = null;
         String datPat = null;
         String decSep = null;
         String thSep = null;
@@ -35,8 +34,11 @@ public class Ledger {
         var locale = Locale.forLanguageTag(localeName);
         var resource = ResourceBundle.getBundle("messages", locale);
         datPat = resource.getString("date.pattern");
+        var formatter = DateTimeFormatter.ofPattern(resource.getString("date.pattern"));
+        var dateFormatter = new DateFormatter(formatter);
+        var descriptionFormatter = new DescriptionFormatter(25);
 
-        header = "%-10s | %-25s | %-13s".formatted(
+        var header = "%-10s | %-25s | %-13s".formatted(
                 resource.getString("header.date"),
                 resource.getString("header.description"),
                 resource.getString("header.change")
@@ -70,21 +72,15 @@ public class Ledger {
             all.addAll(neg);
             all.addAll(pos);
 
-            for (LedgerEntry e : all) {
-                String date = e.date().format(DateTimeFormatter.ofPattern(datPat));
-                //var date = e.date().format(formatter);
-
-                String desc = e.description();
-                if (desc.length() > 25) {
-                    desc = desc.substring(0, 22);
-                    desc = desc + "...";
-                }
+            for (LedgerEntry transaction : all) {
+                var date = dateFormatter.apply(transaction.date());
+                var description = descriptionFormatter.apply(transaction.description());
 
                 String converted;
-                if (e.change() < 0) {
-                    converted = String.format("%.02f", (e.change() / 100) * -1);
+                if (transaction.change() < 0) {
+                    converted = String.format("%.02f", (transaction.change() / 100) * -1);
                 } else {
-                    converted = String.format("%.02f", e.change() / 100);
+                    converted = String.format("%.02f", transaction.change() / 100);
                 }
 
                 String[] parts = converted.split("\\.");
@@ -106,9 +102,9 @@ public class Ledger {
                 }
 
 
-                if (e.change() < 0 && localeName.equals("en-US")) {
+                if (transaction.change() < 0 && localeName.equals("en-US")) {
                     amount = "(" + amount + ")";
-                } else if (e.change() < 0 && localeName.equals("nl-NL")) {
+                } else if (transaction.change() < 0 && localeName.equals("nl-NL")) {
                     amount = currencySymbol + " -" + amount.replace(currencySymbol, "").trim() + " ";
                 } else if (localeName.equals("nl-NL")) {
                     amount = " " + amount + " ";
@@ -119,7 +115,7 @@ public class Ledger {
                 s = s + "\n";
                 s = s + String.format("%s | %-25s | %13s",
                         date,
-                        desc,
+                        description,
                         amount);
             }
 
