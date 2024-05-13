@@ -1,44 +1,38 @@
-@SuppressWarnings("unchecked")
-class CircularBuffer<T> {
+import java.util.ArrayDeque;
 
-    private final T[] buffer;
-    private int head;
-    private int size;
+class CircularBuffer<T> extends ArrayDeque<T> {
+    private final int capacity;
 
-    CircularBuffer(final int size) {
-        buffer = (T[]) new Object[size];
+    CircularBuffer(int capacity) {
+        super(capacity);
+        this.capacity = capacity;
     }
 
     T read() throws BufferIOException {
         ensureBufferIsNotEmpty();
-        int readIndex = (buffer.length + head - size) % buffer.length;
-        --size;
-        return buffer[readIndex];
+        return super.remove();
     }
 
     void write(T data) throws BufferIOException {
         ensureBufferIsNotFull();
-        overwrite(data);
+        super.add(data);
     }
 
     void overwrite(T data) {
-        buffer[head++] = data;
-        head %= buffer.length;
-        size = Math.min(size + 1, buffer.length);
-    }
-
-    void clear() {
-        size = 0;
+        if (size() == capacity) {
+            super.remove();
+        }
+        super.add(data);
     }
 
     private void ensureBufferIsNotEmpty() throws BufferIOException {
-        if (size == 0) {
+        if (isEmpty()) {
             throw new BufferIOException("Tried to read from empty buffer");
         }
     }
 
     private void ensureBufferIsNotFull() throws BufferIOException {
-        if (size == buffer.length) {
+        if (size() == capacity) {
             throw new BufferIOException("Tried to write to full buffer");
         }
     }
