@@ -31,8 +31,7 @@ class LargestSeriesProductCalculator {
         return start -> Arrays
                 .stream(digits, start, start + span)
                 .mapToLong(i -> (long) i)
-                .reduce((a, b) -> a * b)
-                .orElse(1);
+                .reduce(1L, (a, b) -> a * b);
     }
 
     private void validateSpan(int span) {
