@@ -1,3 +1,4 @@
+import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,9 +19,6 @@ public class Ledger {
 
     public String format(String currencyName, String localeName, LedgerEntry[] entries) {
         String s;
-        String datPat = null;
-        String decSep = null;
-        String thSep = null;
 
         if (!CURRENCIES.contains(currencyName)) {
             throw new IllegalArgumentException("Invalid currency");
@@ -33,7 +31,6 @@ public class Ledger {
         }
         var locale = Locale.forLanguageTag(localeName);
         var resource = ResourceBundle.getBundle("messages", locale);
-        datPat = resource.getString("date.pattern");
         var formatter = DateTimeFormatter.ofPattern(resource.getString("date.pattern"));
         var dateFormatter = new DateFormatter(formatter);
         var descriptionFormatter = new DescriptionFormatter(25);
@@ -44,13 +41,9 @@ public class Ledger {
                 resource.getString("header.change")
         );
 
-        if (localeName.equals("en-US")) {
-            decSep = ".";
-            thSep = ",";
-        } else if (localeName.equals("nl-NL")) {
-            decSep = ",";
-            thSep = ".";
-        }
+        var symbols = new DecimalFormatSymbols(locale);
+        var decimalSeparator = symbols.getDecimalSeparator();
+        var thousandSeparator = localeName.equals("en-US") ? "," : ".";
 
         s = header;
 
@@ -88,7 +81,7 @@ public class Ledger {
                 int count = 1;
                 for (int ind = parts[0].length() - 1; ind >= 0; ind--) {
                     if (((count % 3) == 0) && ind > 0) {
-                        amount = thSep + parts[0].charAt(ind) + amount;
+                        amount = thousandSeparator + parts[0].charAt(ind) + amount;
                     } else {
                         amount = parts[0].charAt(ind) + amount;
                     }
@@ -96,9 +89,9 @@ public class Ledger {
                 }
 
                 if (localeName.equals("nl-NL")) {
-                    amount = currencySymbol + " " + amount + decSep + parts[1];
+                    amount = currencySymbol + " " + amount + decimalSeparator + parts[1];
                 } else {
-                    amount = currencySymbol + amount + decSep + parts[1];
+                    amount = currencySymbol + amount + decimalSeparator + parts[1];
                 }
 
 
