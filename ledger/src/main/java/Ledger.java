@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,8 +19,6 @@ public class Ledger {
     }
 
     public String format(String currencyName, String localeName, LedgerEntry[] entries) {
-        String s;
-
         if (!CURRENCIES.contains(currencyName)) {
             throw new IllegalArgumentException("Invalid currency");
         }
@@ -43,9 +42,13 @@ public class Ledger {
 
         var symbols = new DecimalFormatSymbols(locale);
         var decimalSeparator = symbols.getDecimalSeparator();
-        var thousandSeparator = localeName.equals("en-US") ? "," : ".";
+        var groupingSeparator = resource.getString("decimal-format.grouping-separator").charAt(0);
+        symbols.setGroupingSeparator(groupingSeparator);
+        symbols.setCurrencySymbol(currencySymbol);
+        var decimalFormat = new DecimalFormat(resource.getString("decimal-format.pattern"), symbols);
 
-        s = header;
+
+        var s = header;
 
         if (entries.length > 0) {
             List<LedgerEntry> neg = new ArrayList<>();
@@ -68,45 +71,9 @@ public class Ledger {
             for (LedgerEntry transaction : all) {
                 var date = dateFormatter.apply(transaction.date());
                 var description = descriptionFormatter.apply(transaction.description());
+                var amount = decimalFormat.format(transaction.change() / 100);
 
-                String converted;
-                if (transaction.change() < 0) {
-                    converted = String.format("%.02f", (transaction.change() / 100) * -1);
-                } else {
-                    converted = String.format("%.02f", transaction.change() / 100);
-                }
-
-                String[] parts = converted.split("\\.");
-                String amount = "";
-                int count = 1;
-                for (int ind = parts[0].length() - 1; ind >= 0; ind--) {
-                    if (((count % 3) == 0) && ind > 0) {
-                        amount = thousandSeparator + parts[0].charAt(ind) + amount;
-                    } else {
-                        amount = parts[0].charAt(ind) + amount;
-                    }
-                    count++;
-                }
-
-                if (localeName.equals("nl-NL")) {
-                    amount = currencySymbol + " " + amount + decimalSeparator + parts[1];
-                } else {
-                    amount = currencySymbol + amount + decimalSeparator + parts[1];
-                }
-
-
-                if (transaction.change() < 0 && localeName.equals("en-US")) {
-                    amount = "(" + amount + ")";
-                } else if (transaction.change() < 0 && localeName.equals("nl-NL")) {
-                    amount = currencySymbol + " -" + amount.replace(currencySymbol, "").trim() + " ";
-                } else if (localeName.equals("nl-NL")) {
-                    amount = " " + amount + " ";
-                } else {
-                    amount = amount + " ";
-                }
-
-                s = s + "\n";
-                s = s + String.format("%s | %-25s | %13s",
+                s = s + String.format("\n%s | %-25s | %13s",
                         date,
                         description,
                         amount);
