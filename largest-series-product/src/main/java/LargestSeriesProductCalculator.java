@@ -23,8 +23,7 @@ class LargestSeriesProductCalculator {
         validateSpan(span);
         return rangeClosed(0, digits.length - span)
                 .mapToLong(calculateSeriesProduct(span))
-                .max()
-                .orElse(1);
+                .max().orElse(1);
     }
 
     private IntToLongFunction calculateSeriesProduct(int span) {
