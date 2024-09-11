@@ -10,7 +10,7 @@ public class Hand {
 
     public Hand(String representation) {
         this.representation = representation;
-        final var cards = representation.replaceAll("[1SDHC ]", "")
+        var cards = representation.replaceAll("[1SDHC ]", "")
                 .codePoints()
                 .map("AKQJ098765432"::indexOf)
                 .map("ABCDEFGHIJKLM"::charAt)
@@ -18,8 +18,8 @@ public class Hand {
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
 
-        final var isFlush = representation.matches(".0?([SDHC])( .0?\\1){4}");
-        final var isStright = "ABCDEFGHIJKLM AJKLM".contains(cards);
+        var isFlush = representation.matches(".0?([SDHC])( .0?\\1){4}");
+        var isStright = "ABCDEFGHIJKLM AJKLM".contains(cards);
 
         if (isStright) {
             value = (isFlush ? "A" : "E") + (cards.startsWith("AJ") ? 'J' : cards.charAt(0));
