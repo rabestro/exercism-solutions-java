@@ -8,15 +8,14 @@ public final class Poker {
     public Poker(List<String> hands) {
         this.hands = hands.stream()
                 .map(Hand::new)
-                .sorted(Comparator.comparing(Hand::getValue))
+                .sorted(Comparator.comparing(Hand::value))
                 .toList();
     }
 
     public List<String> getBestHands() {
-        var bestValue = hands.getFirst().getValue();
         return hands.stream()
-                .filter(hand -> hand.getValue().equals(bestValue))
-                .map(Hand::toString)
+                .filter(hands.getFirst()::isSameValue)
+                .map(Hand::representation)
                 .toList();
     }
 }
