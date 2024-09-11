@@ -9,10 +9,6 @@ record Hand(String representation, String value) {
         this(representation, toValue(representation));
     }
 
-    public boolean isSameValue(Hand hand) {
-        return value.equals(hand.value);
-    }
-
     private static String toValue(String representation) {
         var cards = representation.replaceAll("[1SDHC ]", "")
                 .codePoints()
@@ -21,30 +17,19 @@ record Hand(String representation, String value) {
                 .sorted()
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-
         var isFlush = representation.matches(".0?([SDHC])( .0?\\1){4}");
         var isStright = "ABCDEFGHIJKLM AJKLM".contains(cards);
-        if (isStright) {
-            return (isFlush ? "A" : "E") + (cards.startsWith("AJ") ? 'J' : cards.charAt(0));
-        }
-        if (isFlush) {
-            return "D" + cards;
-        }
-        if (cards.matches(FOUR_KIND)) {
-            return cards.replaceFirst(FOUR_KIND, "B$2$1$3");
-        }
-        if (cards.matches(FULL_HOUSE)) {
-            return cards.replaceFirst(FULL_HOUSE, "C$1$4$2$3");
-        }
-        if (cards.matches(THREE)) {
-            return cards.replaceFirst(THREE, "F$2$1$3");
-        }
-        if (cards.matches(TWO_PAIRS)) {
-            return cards.replaceFirst(TWO_PAIRS, "G$2$4$1$3$5");
-        }
-        if (cards.matches(ONE_PAIR)) {
-            return cards.replaceFirst(ONE_PAIR, "H$2$1$3");
-        }
-        return "I" + cards;
+        return isStright ? (isFlush ? "A" : "E") + (cards.startsWith("AJ") ? 'J' : cards.charAt(0))
+                : isFlush ? "D" + cards
+                : cards.matches(FOUR_KIND) ? cards.replaceFirst(FOUR_KIND, "B$2$1$3")
+                : cards.matches(FULL_HOUSE) ? cards.replaceFirst(FULL_HOUSE, "C$1$4$2$3")
+                : cards.matches(THREE) ? cards.replaceFirst(THREE, "F$2$1$3")
+                : cards.matches(TWO_PAIRS) ? cards.replaceFirst(TWO_PAIRS, "G$2$4$1$3$5")
+                : cards.matches(ONE_PAIR) ? cards.replaceFirst(ONE_PAIR, "H$2$1$3")
+                : "I" + cards;
+    }
+
+    public boolean isSameValue(Hand hand) {
+        return value.equals(hand.value);
     }
 }
