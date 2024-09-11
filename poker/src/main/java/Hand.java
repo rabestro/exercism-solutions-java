@@ -5,16 +5,13 @@ record Hand(String representation, String value) {
     private static final String TWO_PAIRS = "(.?)(.)\\2(.?)(.)\\4(.?)";
     private static final String ONE_PAIR = "(.*)(.)\\2(.*)";
 
-    public Hand(String representation) {
+    Hand(String representation) {
         this(representation, toValue(representation));
     }
 
     private static String toValue(String representation) {
         var cards = representation.replaceAll("[1SDHC ]", "")
-                .codePoints()
-                .map("AKQJ098765432"::indexOf)
-                .map("ABCDEFGHIJKLM"::charAt)
-                .sorted()
+                .codePoints().map("AKQJ098765432"::indexOf).map("ABCDEFGHIJKLM"::charAt).sorted()
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
         var isFlush = representation.matches(".0?([SDHC])( .0?\\1){4}");
@@ -29,7 +26,7 @@ record Hand(String representation, String value) {
                 : "I" + cards;
     }
 
-    public boolean isSameValue(Hand hand) {
+    boolean isSameValue(Hand hand) {
         return value.equals(hand.value);
     }
 }
